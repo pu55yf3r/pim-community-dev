@@ -4,7 +4,7 @@ namespace Oro\Bundle\FilterBundle\Filter;
 
 use Oro\Bundle\FilterBundle\Datasource\FilterDatasourceAdapterInterface;
 
-abstract class FilterUtility
+class FilterUtility
 {
     const CONDITION_OR = 'OR';
     const CONDITION_AND = 'AND';
@@ -32,5 +32,7 @@ abstract class FilterUtility
      *
      * @param mixed $value
      */
-    abstract public function applyFilter(FilterDatasourceAdapterInterface $ds, string $field, string $operator, $value);
+    public function applyFilter(FilterDatasourceAdapterInterface $ds, string $field, string $operator, $value)
+    {
+    }
 }

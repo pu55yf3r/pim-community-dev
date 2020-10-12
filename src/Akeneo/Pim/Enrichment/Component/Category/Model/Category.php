@@ -173,12 +173,7 @@ class Category extends BaseCategory implements CategoryInterface
         return CategoryTranslation::class;
     }
 
-    /**
-     * Get label
-     *
-     * @return string
-     */
-    public function getLabel()
+    public function getLabel(): string
     {
         $translated = ($this->getTranslation()) ? $this->getTranslation()->getLabel() : null;
 
@@ -204,7 +199,7 @@ class Category extends BaseCategory implements CategoryInterface
      *
      * @return ArrayCollection
      */
-    public function getChannels()
+    public function getChannels(): ArrayCollection
     {
         return $this->channels;
     }
