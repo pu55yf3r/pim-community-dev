@@ -140,6 +140,7 @@
 - Interface `Akeneo\Tool\Component\Api\Repository\ApiResourceRepositoryInterface` now also extends `Doctrine\Common\Persistence\ObjectRepository`
 - Add method `getChannels()` in `Akeneo\Pim\Enrichment\Component\Category\Model\CategoryInterface` interface
 - Add method `getLabel(): string` in `Akeneo\Pim\Enrichment\Component\Category\Model\CategoryInterface` interface
+- Change `Akeneo\Pim\Enrichment\Component\Comment\Model\UserInterface` to use `Akeneo\UserManagement\Component\Model\UserInterface` instead of `Symfony\Component\Security\Core\User\UserInterface`
 
 ### CLI commands
 
