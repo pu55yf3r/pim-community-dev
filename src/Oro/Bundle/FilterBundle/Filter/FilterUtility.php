@@ -2,7 +2,9 @@
 
 namespace Oro\Bundle\FilterBundle\Filter;
 
-class FilterUtility
+use Oro\Bundle\FilterBundle\Datasource\FilterDatasourceAdapterInterface;
+
+abstract class FilterUtility
 {
     const CONDITION_OR = 'OR';
     const CONDITION_AND = 'AND';
@@ -24,4 +26,11 @@ class FilterUtility
     {
         return [self::DATA_NAME_KEY, self::FORM_OPTIONS_KEY];
     }
+
+    /**
+     * Applies filter to query by attribute
+     *
+     * @param mixed $value
+     */
+    abstract public function applyFilter(FilterDatasourceAdapterInterface $ds, string $field, string $operator, $value);
 }
