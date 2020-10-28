@@ -90,9 +90,9 @@ abstract class AbstractProduct implements ProductInterface
     /** @var FamilyVariantInterface */
     protected $familyVariant;
 
-    /**
-     * Constructor
-     */
+    /** @var bool */
+    protected $isDirty = false;
+
     public function __construct()
     {
         $this->values = new WriteValueCollection();
@@ -102,6 +102,7 @@ abstract class AbstractProduct implements ProductInterface
         $this->associations = new ArrayCollection();
         $this->uniqueData = new ArrayCollection();
         $this->quantifiedAssociationCollection = QuantifiedAssociationCollection::createFromNormalized([]);
+        $this->setEnabled(true);
     }
 
     /**
@@ -158,12 +159,31 @@ abstract class AbstractProduct implements ProductInterface
         return $this;
     }
 
+    public function addOrReplaceValue(ValueInterface $value): void
+    {
+        $formerValue = $this->values->getByCodes($value->getAttributeCode(), $value->getScopeCode(), $value->getLocaleCode());
+        if (null !== $formerValue) {
+            if ($formerValue->isEqual($value)) {
+                return;
+            }
+
+            $this->values->remove($formerValue);
+            $this->values->add($value);
+            $this->isDirty = true;
+        } else {
+            $this->values->add($value);
+            $this->isDirty = true;
+        }
+    }
+
     /**
      * {@inheritdoc}
      */
     public function addValue(ValueInterface $value)
     {
-        $this->values->add($value);
+        if (true === $this->values->add($value)) {
+            $this->isDirty = true;
+        }
 
         return $this;
     }
@@ -173,7 +193,10 @@ abstract class AbstractProduct implements ProductInterface
      */
     public function removeValue(ValueInterface $value)
     {
-        $this->values->remove($value);
+        if ($this->values->contains($value)) {
+            $this->values->remove($value);
+            $this->isDirty = true;
+        }
 
         return $this;
     }
@@ -281,7 +304,10 @@ abstract class AbstractProduct implements ProductInterface
      */
     public function setIdentifier(?string $identifierValue): ProductInterface
     {
-        $this->identifier = $identifierValue;
+        if ($this->identifier !== $identifierValue) {
+            $this->identifier = $identifierValue;
+            $this->isDirty = true;
+        }
 
         return $this;
     }
@@ -305,6 +331,35 @@ abstract class AbstractProduct implements ProductInterface
      */
     public function setValues(WriteValueCollection $values)
     {
+        $formerValues = null === $this->values ?
+            new WriteValueCollection() :
+            WriteValueCollection::fromCollection($this->values);
+
+        if (!$this->isDirty()) {
+            foreach ($formerValues as $formerValue) {
+                $matchingNewValue = $values->getByCodes(
+                    $formerValue->getAttributeCode(),
+                    $formerValue->getScopeCode(),
+                    $formerValue->getLocaleCode()
+                );
+                if (null === $matchingNewValue || !$formerValue->isEqual($matchingNewValue)) {
+                    $this->isDirty = true;
+                    break;
+                }
+            }
+
+            foreach ($values as $newValue) {
+                if (null === $formerValues->getByCodes(
+                        $newValue->getAttributeCode(),
+                        $newValue->getScopeCode(),
+                        $newValue->getLocaleCode()
+                    )) {
+                    $this->isDirty = true;
+                    break;
+                }
+            }
+        }
+
         $this->values = $values;
 
         return $this;
@@ -717,6 +772,16 @@ abstract class AbstractProduct implements ProductInterface
     public function isVariant(): bool
     {
         return null !== $this->getParent();
+    }
+
+    public function isDirty(): bool
+    {
+        return $this->isDirty;
+    }
+
+    public function clean(): void
+    {
+        $this->isDirty = false;
     }
 
     /**

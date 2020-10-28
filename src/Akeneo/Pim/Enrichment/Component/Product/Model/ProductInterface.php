@@ -208,4 +208,16 @@ interface ProductInterface extends
      * @return Collection
      */
     public function getCategoriesForVariation(): Collection;
+
+    /**
+     * Is the product updated ?
+     *
+     * @return bool
+     */
+    public function isDirty(): bool;
+
+    /**
+     * Set isDirty = false
+     */
+    public function clean(): void;
 }
